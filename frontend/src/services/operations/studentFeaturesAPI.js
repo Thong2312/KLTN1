@@ -1,130 +1,78 @@
 import { toast } from "react-hot-toast";
 import { studentEndpoints } from "../apis";
 import { apiConnector } from "../apiConnector";
-import rzpLogo from "../../assets/Logo/rzp_logo.png"
 import { setPaymentLoading } from "../../slices/courseSlice";
 import { resetCart } from "../../slices/cartSlice";
 
-
 const { COURSE_PAYMENT_API, COURSE_VERIFY_API, SEND_PAYMENT_SUCCESS_EMAIL_API } = studentEndpoints;
 
-function loadScript(src) {
-    return new Promise((resolve) => {
-        const script = document.createElement("script");
-        script.src = src;
-
-        script.onload = () => {
-            resolve(true);
-        }
-        script.onerror = () => {
-            resolve(false);
-        }
-        document.body.appendChild(script);
-    })
-}
-
-// ================ buyCourse ================ 
+// ================ buyCourse (Chuyển sang PayPal) ================
 export async function buyCourse(token, coursesId, userDetails, navigate, dispatch) {
-    const toastId = toast.loading("Loading...");
+    const toastId = toast.loading("Initializing PayPal Payment...");
 
     try {
-        //load the script
-        const res = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
-
-        if (!res) {
-            toast.error("RazorPay SDK failed to load");
-            return;
-        }
-
-        // initiate the order
+        // Gửi request tạo đơn hàng PayPal
         const orderResponse = await apiConnector("POST", COURSE_PAYMENT_API,
             { coursesId },
-            {
-                Authorization: `Bearer ${token}`,
-            })
-        // console.log("orderResponse... ", orderResponse);
+            { Authorization: `Bearer ${token}` }
+        );
+
+        console.log("DEBUG: PAYPAL PAYMENT API RESPONSE:", orderResponse.data);
+
         if (!orderResponse.data.success) {
             throw new Error(orderResponse.data.message);
         }
 
-        const RAZORPAY_KEY = import.meta.env.VITE_APP_RAZORPAY_KEY;
-        // console.log("RAZORPAY_KEY...", RAZORPAY_KEY);
-
-        // options
-        const options = {
-            key: RAZORPAY_KEY,
-            currency: orderResponse.data.message.currency,
-            amount: orderResponse.data.message.amount,
-            order_id: orderResponse.data.message.id,
-            name: "StudyNotion",
-            description: "Thank You for Purchasing the Course",
-            image: rzpLogo,
-            prefill: {
-                name: userDetails.firstName,
-                email: userDetails.email
-            },
-            handler: function (response) {
-                //send successful mail
-                sendPaymentSuccessEmail(response, orderResponse.data.message.amount, token);
-                //verifyPayment
-                verifyPayment({ ...response, coursesId }, token, navigate, dispatch);
-            }
+        if (!orderResponse.data.approval_url) {
+            throw new Error("Missing approval_url in API response");
         }
 
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
-        paymentObject.on("payment.failed", function (response) {
-            toast.error("oops, payment failed");
-            console.log("payment failed.... ", response.error);
-        })
-
+        // Chuyển hướng người dùng đến PayPal để thanh toán
+        window.location.href = orderResponse.data.approval_url;
     }
     catch (error) {
-        console.log("PAYMENT API ERROR.....", error);
-        toast.error(error.response?.data?.message);
-        // toast.error("Could not make Payment");
+        console.log("PAYPAL PAYMENT API ERROR.....", error);
+        toast.error(error.response?.data?.message || "Could not initiate PayPal payment");
     }
     toast.dismiss(toastId);
 }
-
 
 // ================ send Payment Success Email ================
 async function sendPaymentSuccessEmail(response, amount, token) {
     try {
         await apiConnector("POST", SEND_PAYMENT_SUCCESS_EMAIL_API, {
-            orderId: response.razorpay_order_id,
-            paymentId: response.razorpay_payment_id,
+            orderId: response.paymentId,
+            paymentId: response.payerID,
             amount,
         }, {
             Authorization: `Bearer ${token}`
-        })
+        });
     }
     catch (error) {
         console.log("PAYMENT SUCCESS EMAIL ERROR....", error);
     }
 }
 
-
-// ================ verify payment ================
+// ================ verify payment (Chuyển sang PayPal) ================
 async function verifyPayment(bodyData, token, navigate, dispatch) {
-    const toastId = toast.loading("Verifying Payment....");
+    const toastId = toast.loading("Verifying PayPal Payment....");
     dispatch(setPaymentLoading(true));
 
     try {
         const response = await apiConnector("POST", COURSE_VERIFY_API, bodyData, {
             Authorization: `Bearer ${token}`,
-        })
+        });
 
         if (!response.data.success) {
             throw new Error(response.data.message);
         }
-        toast.success("payment Successful, you are addded to the course");
+        toast.success("Payment Successful! You are now enrolled in the course.");
         navigate("/dashboard/enrolled-courses");
         dispatch(resetCart());
     }
     catch (error) {
-        console.log("PAYMENT VERIFY ERROR....", error);
-        toast.error("Could not verify Payment");
+        console.log("PAYPAL PAYMENT VERIFY ERROR....", error);
+        toast.error("Could not verify PayPal Payment");
     }
     toast.dismiss(toastId);
     dispatch(setPaymentLoading(false));

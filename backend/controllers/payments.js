@@ -16,7 +16,7 @@ exports.capturePayment = async (req, res) => {
     const userId = req.user.id;
 
     if (!coursesId || coursesId.length === 0) {
-        return res.json({ success: false, message: "Please provide Course Id" });
+        return res.status(400).json({ success: false, message: "Please provide Course Id" });
     }
 
     let totalAmount = 0;
@@ -58,10 +58,17 @@ exports.capturePayment = async (req, res) => {
             console.error("PayPal Payment Error:", error);
             return res.status(500).json({ success: false, message: "Could not create PayPal payment" });
         }
+
         const approvalUrl = payment.links.find(link => link.rel === "approval_url");
-        res.json({ success: true, approval_url: approvalUrl.href });
+        res.json({
+            success: true,
+            approval_url: approvalUrl.href,
+            currency: "USD",  // Trả về currency như Razorpay
+            amount: totalAmount.toFixed(2)  // Trả về số tiền như Razorpay
+        });
     });
 };
+
 
 // ================ Verify PayPal Payment ================
 exports.verifyPayment = async (req, res) => {
@@ -69,6 +76,7 @@ exports.verifyPayment = async (req, res) => {
     const userId = req.user.id;
 
     if (!paymentId || !PayerID || !coursesId || !userId) {
+        console.log("❌ DEBUG: Thiếu dữ liệu xác thực thanh toán", req.body);
         return res.status(400).json({ success: false, message: "Payment Failed, data not found" });
     }
 
@@ -78,11 +86,12 @@ exports.verifyPayment = async (req, res) => {
             return res.status(500).json({ success: false, message: "Payment execution failed" });
         }
 
-        // Enroll student in courses
+        console.log("✅ DEBUG: Thanh toán PayPal thành công:", payment);
         await enrollStudents(coursesId, userId, res);
         return res.status(200).json({ success: true, message: "Payment Verified" });
     });
 };
+
 
 // ================ Enroll Students to course after payment ================
 const enrollStudents = async (courses, userId, res) => {
@@ -92,6 +101,8 @@ const enrollStudents = async (courses, userId, res) => {
 
     for (const courseId of courses) {
         try {
+            console.log(`DEBUG: Enrolling user ${userId} to course ${courseId}`);
+
             const enrolledCourse = await Course.findOneAndUpdate(
                 { _id: courseId },
                 { $push: { studentsEnrolled: userId } },
@@ -99,8 +110,11 @@ const enrollStudents = async (courses, userId, res) => {
             );
 
             if (!enrolledCourse) {
+                console.log("❌ DEBUG: Không tìm thấy khóa học - ID:", courseId);
                 return res.status(500).json({ success: false, message: "Course not Found" });
             }
+
+            console.log("✅ DEBUG: Updated course:", enrolledCourse);
 
             const courseProgress = await CourseProgress.create({
                 courseID: courseId,
@@ -119,17 +133,14 @@ const enrollStudents = async (courses, userId, res) => {
                 { new: true }
             );
 
-            const emailResponse = await mailSender(
-                enrolledStudent.email,
-                `Successfully Enrolled into ${enrolledCourse.courseName}`,
-                courseEnrollmentEmail(enrolledCourse.courseName, `${enrolledStudent.firstName}`)
-            );
+            console.log("✅ DEBUG: Enrolled student:", enrolledStudent);
         } catch (error) {
-            console.log(error);
+            console.log("❌ DEBUG: Lỗi khi enroll sinh viên:", error);
             return res.status(500).json({ success: false, message: error.message });
         }
     }
 };
+
 
 // ================ Send Payment Success Email ================
 exports.sendPaymentSuccessEmail = async (req, res) => {
