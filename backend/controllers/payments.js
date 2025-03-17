@@ -48,8 +48,8 @@ exports.capturePayment = async (req, res) => {
             description: `Payment for courses: ${coursesId.join(", ")}`,
         }],
         redirect_urls: {
-            return_url: "http://localhost:3000/payment-success",
-            cancel_url: "http://localhost:3000/payment-cancel",
+            return_url: "http://localhost:5173/dashboard/enrolled-courses",
+            cancel_url: `http://localhost:5173/dashboard/enrolled-courses`,
         },
     };
 

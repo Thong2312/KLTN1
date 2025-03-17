@@ -201,69 +201,35 @@ exports.updateUserProfileImage = async (req, res) => {
 // ================ Get Enrolled Courses ================
 exports.getEnrolledCourses = async (req, res) => {
     try {
-        const userId = req.user.id
-        let userDetails = await User.findOne({ _id: userId, })
-            .populate({
-                path: "courses",
-                populate: {
-                    path: "courseContent",
-                    populate: {
-                        path: "subSection",
-                    },
-                },
-            })
-            .exec()
-
-        userDetails = userDetails.toObject()
-
-        var SubsectionLength = 0
-        for (var i = 0; i < userDetails.courses.length; i++) {
-            let totalDurationInSeconds = 0
-            SubsectionLength = 0
-            for (var j = 0; j < userDetails.courses[i].courseContent.length; j++) {
-                totalDurationInSeconds += userDetails.courses[i].courseContent[
-                    j
-                ].subSection.reduce((acc, curr) => acc + parseInt(curr.timeDuration), 0)
-
-                userDetails.courses[i].totalDuration = convertSecondsToDuration(totalDurationInSeconds)
-                SubsectionLength += userDetails.courses[i].courseContent[j].subSection.length
-            }
-
-            let courseProgressCount = await CourseProgress.findOne({
-                courseID: userDetails.courses[i]._id,
-                userId: userId,
-            })
-
-            courseProgressCount = courseProgressCount?.completedVideos.length
-
-            if (SubsectionLength === 0) {
-                userDetails.courses[i].progressPercentage = 100
-            } else {
-                // To make it up to 2 decimal point
-                const multiplier = Math.pow(10, 2)
-                userDetails.courses[i].progressPercentage =
-                    Math.round((courseProgressCount / SubsectionLength) * 100 * multiplier) / multiplier
-            }
-        }
-
-        if (!userDetails) {
-            return res.status(400).json({
-                success: false,
-                message: `Could not find user with id: ${userDetails}`,
-            })
-        }
-
-        return res.status(200).json({
-            success: true,
-            data: userDetails.courses,
+      console.log("DEBUG: userId: ", req.user.id);  // log userId xem có không
+  
+      const user = await User.findById(req.user.id)
+        .populate({
+          path: "courses",
+          populate: {
+            path: "instructor",
+            select: "firstName lastName",
+          }
         })
+        .exec();
+  
+      if (!user) {
+        console.log("DEBUG: User not found");
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+  
+      console.log("DEBUG: Courses enrolled: ", user.courses);
+  
+      return res.status(200).json({
+        success: true,
+        data: user.courses,
+      });
     } catch (error) {
-        return res.status(500).json({
-            success: false,
-            message: error.message,
-        })
+      console.error("Error fetching enrolled courses", error);
+      return res.status(500).json({ success: false, message: "Failed to fetch enrolled courses", error: error.message });
     }
-}
+  };
+  
 
 
 

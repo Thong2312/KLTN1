@@ -28,6 +28,7 @@ export const studentEndpoints = {
   COURSE_PAYMENT_API: BASE_URL + "/payment/capturePayment",
   COURSE_VERIFY_API: BASE_URL + "/payment/verifyPayment",
   SEND_PAYMENT_SUCCESS_EMAIL_API: BASE_URL + "/payment/sendPaymentSuccessEmail",
+  GET_ENROLLED_COURSES_API: "http://localhost:5000/api/v1/profile/enrolled-courses",
 }
 
 // COURSE ENDPOINTS
