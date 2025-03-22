@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { verifyPayment, fetchEnrolledCourses } from "../../../services/operations/studentFeaturesAPI";
 
+
 function EnrolledCourses() {
   const location = useLocation();
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { studentEndpoints } from "../apis";
 import { apiConnector } from "../apiConnector";
 import { setPaymentLoading } from "../../slices/courseSlice";
 import { resetCart } from "../../slices/cartSlice";
-const { GET_ENROLLED_COURSES_API } = studentEndpoints;
+const { GET_USER_ENROLLED_COURSES_API } = studentEndpoints;
 const { COURSE_PAYMENT_API, COURSE_VERIFY_API, SEND_PAYMENT_SUCCESS_EMAIL_API } = studentEndpoints;
 
 // ========== BUY COURSE ==========
@@ -86,7 +86,7 @@ export async function verifyPayment(bodyData, token, navigate, dispatch) {
 export async function fetchEnrolledCourses(token) {
     let result = [];
     try {
-      const response = await apiConnector("GET", GET_ENROLLED_COURSES_API, null, {
+      const response = await apiConnector("GET", GET_USER_ENROLLED_COURSES_API, null, {
         Authorization: `Bearer ${token}`,
       });
       if (response.data.success) {
@@ -96,4 +96,4 @@ export async function fetchEnrolledCourses(token) {
       console.log("Error fetching enrolled courses", error);
     }
     return result;
-  }
+}
