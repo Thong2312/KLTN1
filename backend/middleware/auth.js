@@ -9,17 +9,7 @@ require('dotenv').config();
 exports.auth = (req, res, next) => {
     try {
         // extract token by anyone from this 3 ways
-        const authHeader = req.header('Authorization');
-        let token = null;
-
-        if (req.body?.token) {
-            token = req.body.token;
-        } else if (req.cookies?.token) {
-            token = req.cookies.token;
-        } else if (authHeader && authHeader.startsWith('Bearer ')) {
-            token = authHeader.replace('Bearer ', '');
-        }
-
+        const token = req.body?.token || req.cookies.token || req.header('Authorization').replace('Bearer ', '');
 
         // if token is missing
         if (!token) {
@@ -48,7 +38,6 @@ exports.auth = (req, res, next) => {
             //     exp: 1699538846
             //   }
             req.user = decode;
-            console.log('DEBUG: decoded token ->', decode);
         }
         catch (error) {
             console.log('Error while decoding token');
@@ -56,7 +45,7 @@ exports.auth = (req, res, next) => {
             return res.status(401).json({
                 success: false,
                 error: error.message,
-                message: 'Error while decoding token'
+                messgae: 'Error while decoding token'
             })
         }
         // go to next middleware
@@ -83,7 +72,7 @@ exports.isStudent = (req, res, next) => {
         if (req.user?.accountType != 'Student') {
             return res.status(401).json({
                 success: false,
-                message: 'This Page is protected only for student'
+                messgae: 'This Page is protected only for student'
             })
         }
         // go to next middleware
@@ -108,7 +97,7 @@ exports.isInstructor = (req, res, next) => {
         if (req.user?.accountType != 'Instructor') {
             return res.status(401).json({
                 success: false,
-                message: 'This Page is protected only for Instructor'
+                messgae: 'This Page is protected only for Instructor'
             })
         }
         // go to next middleware
@@ -133,7 +122,7 @@ exports.isAdmin = (req, res, next) => {
         if (req.user.accountType != 'Admin') {
             return res.status(401).json({
                 success: false,
-                message: 'This Page is protected only for Admin'
+                messgae: 'This Page is protected only for Admin'
             })
         }
         // go to next middleware

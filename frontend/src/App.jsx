@@ -41,7 +41,8 @@ import { HiArrowNarrowUp } from "react-icons/hi"
 import CreateCategory from "./components/core/Dashboard/CreateCategory";
 import AllStudents from './components/core/Dashboard/AllStudents';
 import AllInstructors from './components/core/Dashboard/AllInstructors';
-
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PurchaseHistory from "./components/core/Dashboard/PurchaseHistory";
 
 function App() {
 
@@ -150,6 +151,7 @@ function App() {
         >
           <Route path="dashboard/my-profile" element={<MyProfile />} />
           <Route path="dashboard/Settings" element={<Settings />} />
+          <Route path="dashboard/purchase-history" element={<PurchaseHistory />} />
 
           {/* Route only for Admin */}
           {/* create category, all students, all instructors */}
@@ -206,7 +208,13 @@ function App() {
         {/* Page Not Found (404 Page ) */}
         <Route path="*" element={<PageNotFound />} />
 
+
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+
       </Routes>
+
+
+      
 
     </div>
   );

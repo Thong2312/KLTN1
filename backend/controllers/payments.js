@@ -15,13 +15,13 @@ exports.capturePayment = async (req, res) => {
     const { coursesId } = req.body;
     const userId = req.user.id;
 
-    if (!coursesId || coursesId.length === 0) {
-        return res.status(400).json({ success: false, message: "Please provide Course Id" });
-    }
+    try {
+        if (!coursesId || coursesId.length === 0) {
+            return res.status(400).json({ success: false, message: "Please provide Course Id" });
+        }
 
-    let totalAmount = 0;
-    for (const course_id of coursesId) {
-        try {
+        let totalAmount = 0;
+        for (const course_id of coursesId) {
             const course = await Course.findById(course_id);
             if (!course) {
                 return res.status(404).json({ success: false, message: "Could not find the course" });
@@ -33,65 +33,71 @@ exports.capturePayment = async (req, res) => {
             }
 
             totalAmount += course.price;
-        } catch (error) {
-            console.log(error);
-            return res.status(500).json({ success: false, message: error.message });
-        }
-    }
-
-    // Create PayPal order
-    const paymentJson = {
-        intent: "sale",
-        payer: { payment_method: "paypal" },
-        transactions: [{
-            amount: { total: totalAmount.toFixed(2), currency: "USD" },
-            description: `Payment for courses: ${coursesId.join(", ")}`,
-        }],
-        redirect_urls: {
-            return_url: "http://localhost:5173/dashboard/enrolled-courses",
-            cancel_url: `http://localhost:5173/dashboard/enrolled-courses`,
-        },
-    };
-
-    paypal.payment.create(paymentJson, (error, payment) => {
-        if (error) {
-            console.error("PayPal Payment Error:", error);
-            return res.status(500).json({ success: false, message: "Could not create PayPal payment" });
         }
 
-        const approvalUrl = payment.links.find(link => link.rel === "approval_url");
-        res.json({
-            success: true,
-            approval_url: approvalUrl.href,
-            currency: "USD",  // Trả về currency như Razorpay
-            amount: totalAmount.toFixed(2)  // Trả về số tiền như Razorpay
+        // Create PayPal order
+        const paymentJson = {
+            intent: "sale",
+            payer: { payment_method: "paypal" },
+            transactions: [{
+                amount: { total: totalAmount.toFixed(2), currency: "USD" },
+                description: `Payment for courses: ${coursesId.join(", ")}`,
+            }],
+            redirect_urls: {
+                return_url: "http://localhost:5173/payment-success",
+                cancel_url: "http://localhost:5173/payment-cancel",
+            },
+        };
+
+        paypal.payment.create(paymentJson, (error, payment) => {
+            if (error) {
+                console.error("PayPal Payment Error:", error);
+                return res.status(500).json({ success: false, message: "Could not create PayPal payment" });
+            }
+
+            const approvalUrl = payment.links.find(link => link.rel === "approval_url");
+
+            return res.status(200).json({
+                success: true,
+                message: {
+                    approval_url: approvalUrl.href,
+                    currency: "USD",
+                    amount: totalAmount.toFixed(2),
+                    orderId: payment.id
+                }
+            });
         });
-    });
+    } catch (error) {
+        console.log("Error in capturePayment:", error);
+        return res.status(500).json({ success: false, message: "Something went wrong in payment initiation." });
+    }
 };
-
 
 // ================ Verify PayPal Payment ================
 exports.verifyPayment = async (req, res) => {
     const { paymentId, PayerID, coursesId } = req.body;
     const userId = req.user.id;
 
-    if (!paymentId || !PayerID || !coursesId || !userId) {
-        console.log("❌ DEBUG: Thiếu dữ liệu xác thực thanh toán", req.body);
-        return res.status(400).json({ success: false, message: "Payment Failed, data not found" });
-    }
-
-    paypal.payment.execute(paymentId, { payer_id: PayerID }, async (error, payment) => {
-        if (error) {
-            console.error("PayPal Execution Error:", error);
-            return res.status(500).json({ success: false, message: "Payment execution failed" });
+    try {
+        if (!paymentId || !PayerID || !coursesId || !userId) {
+            return res.status(400).json({ success: false, message: "Payment Failed, data not found" });
         }
 
-        console.log("✅ DEBUG: Thanh toán PayPal thành công:", payment);
-        await enrollStudents(coursesId, userId, res);
-        return res.status(200).json({ success: true, message: "Payment Verified" });
-    });
-};
+        paypal.payment.execute(paymentId, { payer_id: PayerID }, async (error, payment) => {
+            if (error) {
+                console.error("PayPal Execution Error:", error);
+                return res.status(500).json({ success: false, message: "Payment execution failed" });
+            }
 
+            // Enroll student in courses
+            await enrollStudents(coursesId, userId, res);
+            return res.status(200).json({ success: true, message: "Payment Verified" });
+        });
+    } catch (error) {
+        console.log("Error in verifyPayment:", error);
+        return res.status(500).json({ success: false, message: "Payment verification failed." });
+    }
+};
 
 // ================ Enroll Students to course after payment ================
 const enrollStudents = async (courses, userId, res) => {
@@ -101,8 +107,6 @@ const enrollStudents = async (courses, userId, res) => {
 
     for (const courseId of courses) {
         try {
-            console.log(`DEBUG: Enrolling user ${userId} to course ${courseId}`);
-
             const enrolledCourse = await Course.findOneAndUpdate(
                 { _id: courseId },
                 { $push: { studentsEnrolled: userId } },
@@ -110,11 +114,8 @@ const enrollStudents = async (courses, userId, res) => {
             );
 
             if (!enrolledCourse) {
-                console.log("❌ DEBUG: Không tìm thấy khóa học - ID:", courseId);
                 return res.status(500).json({ success: false, message: "Course not Found" });
             }
-
-            console.log("✅ DEBUG: Updated course:", enrolledCourse);
 
             const courseProgress = await CourseProgress.create({
                 courseID: courseId,
@@ -133,33 +134,38 @@ const enrollStudents = async (courses, userId, res) => {
                 { new: true }
             );
 
-            console.log("✅ DEBUG: Enrolled student:", enrolledStudent);
+            await mailSender(
+                enrolledStudent.email,
+                `Successfully Enrolled into ${enrolledCourse.courseName}`,
+                courseEnrollmentEmail(enrolledCourse.courseName, `${enrolledStudent.firstName}`)
+            );
         } catch (error) {
-            console.log("❌ DEBUG: Lỗi khi enroll sinh viên:", error);
+            console.log("Error enrolling student:", error);
             return res.status(500).json({ success: false, message: error.message });
         }
     }
 };
-
 
 // ================ Send Payment Success Email ================
 exports.sendPaymentSuccessEmail = async (req, res) => {
     const { orderId, paymentId, amount } = req.body;
     const userId = req.user.id;
 
-    if (!orderId || !paymentId || !amount || !userId) {
-        return res.status(400).json({ success: false, message: "Please provide all the fields" });
-    }
-
     try {
+        if (!orderId || !paymentId || !amount || !userId) {
+            return res.status(400).json({ success: false, message: "Please provide all the fields" });
+        }
+
         const enrolledStudent = await User.findById(userId);
         await mailSender(
             enrolledStudent.email,
             `Payment Received`,
             `Payment of $${amount} for Order ID: ${orderId} with Payment ID: ${paymentId} was successful.`
         );
+
+        return res.status(200).json({ success: true, message: "Payment success email sent." });
     } catch (error) {
-        console.log("Error in sending mail", error);
+        console.log("Error in sending mail:", error);
         return res.status(500).json({ success: false, message: "Could not send email" });
     }
 };

@@ -25,7 +25,7 @@ router.get('/getUserDetails', auth, getUserDetails);
 
 
 // Get Enrolled Courses
-router.get('/enrolled-courses', auth, getEnrolledCourses);
+router.get('/getEnrolledCourses', auth, getEnrolledCourses);
 
 // update profile image
 router.put('/updateUserProfileImage', auth, updateUserProfileImage);
