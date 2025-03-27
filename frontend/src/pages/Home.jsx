@@ -67,15 +67,19 @@ const Home = () => {
 
     // get courses data
     const [CatalogPageData, setCatalogPageData] = useState(null);
-    const categoryID = "6506c9dff191d7ffdb4a3fe2" // hard coded
+    const categoryID = "67c974dba7386791368b94f6" // hard coded
     const dispatch = useDispatch();
 
     useEffect(() => {
         const fetchCatalogPageData = async () => {
 
-            const result = await getCatalogPageData(categoryID, dispatch);
-            setCatalogPageData(result);
-            // console.log("page data ==== ",CatalogPageData);
+            try {
+                const result = await getCatalogPageData(categoryID, dispatch);
+                console.log("Fetched CatalogPageData: ", result);
+                setCatalogPageData(result);
+            } catch (err) {
+                console.error("Error fetching catalog data:", err);
+            }
         }
         if (categoryID) {
             fetchCatalogPageData();
