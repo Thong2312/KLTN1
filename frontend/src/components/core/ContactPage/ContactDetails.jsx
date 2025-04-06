@@ -8,14 +8,14 @@ const contactDetails = [
     icon: "HiChatBubbleLeftRight",
     heading: "Chat on us",
     description: "Our friendly team is here to help.",
-    details: "info@studynotion.com",
+    details: "info@devlearn.com",
   },
   {
     icon: "BiWorld",
     heading: "Visit us",
     description: "Come and say hello at our office HQ.",
     details:
-      "Akshya Nagar 1st Block 1st Cross, Rammurthy nagar, Bangalore-560016",
+      "1066 CACH MANG THANG 8 STREET, WARD 4, Tan Binh District, Ho Chi Minh City",
   },
   {
     icon: "IoCall",

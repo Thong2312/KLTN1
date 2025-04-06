@@ -24,7 +24,7 @@ import { fadeIn } from "../components/common/motionFrameVarients"
 const About = () => {
   return (
     <div>
-      <section className="bg-richblack-700">
+      <section className="bg-blue-4">
         <div className="relative mx-auto flex w-11/12 max-w-maxContent flex-col justify-between gap-10 text-center text-white">
           <motion.header
             className="mx-auto py-20 text-4xl font-semibold lg:w-[70%]"
@@ -44,7 +44,7 @@ const About = () => {
               whileInView={'show'}
               viewport={{ once: false, amount: 0.1 }}
               className="mx-auto mt-3 text-center text-base font-medium text-richblack-300 lg:w-[95%]">
-              Studynotion is at the forefront of driving innovation in online
+              DevLearn is at the forefront of driving innovation in online
               education. We're passionate about creating a brighter future by
               offering cutting-edge courses, leveraging emerging technologies,
               and nurturing a vibrant learning community.
@@ -70,47 +70,7 @@ const About = () => {
 
       <section>
         <div className="mx-auto flex w-11/12 max-w-maxContent flex-col justify-between gap-10 text-richblack-500">
-          <div className="flex flex-col items-center gap-10 lg:flex-row justify-between">
-            <motion.div
-              variants={fadeIn('right', 0.1)}
-              initial='hidden'
-              whileInView={'show'}
-              viewport={{ once: false, amount: 0.1 }}
-              className="my-24 flex lg:w-[50%] flex-col gap-10">
-              <h1 className="bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#FCB045] bg-clip-text text-4xl font-semibold text-transparent lg:w-[70%] ">
-                Our Founding Story
-              </h1>
-              <p className="text-base font-medium text-richblack-300 lg:w-[95%]">
-                Our e-learning platform was born out of a shared vision and
-                passion for transforming education. It all began with a group of
-                educators, technologists, and lifelong learners who recognized
-                the need for accessible, flexible, and high-quality learning
-                opportunities in a rapidly evolving digital world.
-              </p>
-              <p className="text-base font-medium text-richblack-300 lg:w-[95%]">
-                As experienced educators ourselves, we witnessed firsthand the
-                limitations and challenges of traditional education systems. We
-                believed that education should not be confined to the walls of a
-                classroom or restricted by geographical boundaries. We
-                envisioned a platform that could bridge these gaps and empower
-                individuals from all walks of life to unlock their full
-                potential.
-              </p>
-            </motion.div>
-
-            <motion.div
-             variants={fadeIn('left', 0.1)}
-             initial='hidden'
-             whileInView={'show'}
-             viewport={{ once: false, amount: 0.1 }}
-            >
-              <Img
-                src={FoundingStory}
-                alt="FoundingStory"
-                className="shadow-[0_0_20px_0] shadow-[#FC6767]"
-              />
-            </motion.div>
-          </div>
+          
 
           <div className="flex flex-col items-center lg:gap-10 lg:flex-row justify-between">
             <div className="my-24 flex lg:w-[40%] flex-col gap-10">
@@ -139,10 +99,8 @@ const About = () => {
         </div>
       </section>
 
-      <StatsComponenet />
 
       <section className="mx-auto mt-20 flex w-11/12 max-w-maxContent flex-col justify-between gap-10 text-white">
-        <LearningGrid />
         <ContactFormSection />
       </section>
 

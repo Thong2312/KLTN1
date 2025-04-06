@@ -68,19 +68,18 @@ const otpTemplate = (otp, name) => {
 	
 	<body>
 		<div class="container">
-			<a href=""><img class="logo"
-					src="https://i.ibb.co/7Xyj3PC/logo.png" alt="StudyNotion Logo"></a>
+			<img src="https://i.ibb.co/kgN1fyX2/Logo-Full.png" alt="Logo-Full" border="0">
 			<div class="message">OTP Verification Email</div>
 			<div class="body">
 				<p>Dear ${name}</p>
-				<p>Thank you for registering with StudyNotion. To complete your registration, please use the following OTP
+				<p>Thank you for registering with DevLearn. To complete your registration, please use the following OTP
 					(One-Time Password) to verify your account:</p>
 				<h2 class="highlight">${otp}</h2>
 				<p>This OTP is valid for 3 minutes. If you did not request this verification, please disregard this email.
 				Once your account is verified, you will have access to our platform and its features.</p>
 			</div>
 			<div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a
-					href="mailto:N@gmail.com">nguyenthanhbinh@gmail.com</a>. We are here to help!</div>
+					href="mailto:N@gmail.com">info@devlearn.com</a>. We are here to help!</div>
 		</div>
 	</body>
 	
