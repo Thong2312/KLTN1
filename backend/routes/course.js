@@ -1,6 +1,13 @@
 const express = require('express');
 const router = express.Router();
 
+const chatController = require('../controllers/chatController');
+const middlewareAuth = require('../middleware/auth');
+
+const { auth, isAdmin, isInstructor, isStudent } = middlewareAuth;
+
+router.get('/chat/enrolled-courses', auth, chatController.getEnrolledCourses);
+
 // Import required controllers
 
 // course controllers 
@@ -51,7 +58,6 @@ const {
 
 
 // Middlewares
-const { auth, isAdmin, isInstructor, isStudent } = require('../middleware/auth')
 
 
 // ********************************************************************************************************
@@ -96,7 +102,6 @@ router.delete("/deleteCourse", auth, isInstructor, deleteCourse)
 router.post("/updateCourseProgress", auth, isStudent, updateCourseProgress)
 
 
-
 // ********************************************************************************************************
 //                                      Category routes (Only by Admin)
 // ********************************************************************************************************
@@ -108,8 +113,6 @@ router.get('/showAllCategories', showAllCategories);
 router.post("/getCategoryPageDetails", getCategoryPageDetails)
 
 
-
-
 // ********************************************************************************************************
 //                                      Rating and Review
 // ********************************************************************************************************
@@ -117,5 +120,11 @@ router.post('/createRating', auth, isStudent, createRating);
 router.get('/getAverageRating', getAverageRating);
 router.get('/getReviews', getAllRatingReview);
 
+
+// Chat routes for student only
+router.get('/:courseId/chat', auth, chatController.getChatMessages);
+router.post('/:courseId/chat', auth, chatController.sendMessage);
+
+router.get('/chat/enrolled-courses', auth, chatController.getEnrolledCourses);
 
 module.exports = router;

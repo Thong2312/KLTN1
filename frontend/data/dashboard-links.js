@@ -63,4 +63,10 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.ADMIN,
     icon: "VscNotebook",
   },
+  {
+    id: 10,
+    name: "Chat",
+    path: "/dashboard/chat",
+    icon: "VscComment",
+  }
 ];

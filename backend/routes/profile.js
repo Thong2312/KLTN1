@@ -33,6 +33,4 @@ router.put('/updateUserProfileImage', auth, updateUserProfileImage);
 // instructor Dashboard Details
 router.get('/instructorDashboard', auth, isInstructor, instructorDashboard);
 
-
-
 module.exports = router;

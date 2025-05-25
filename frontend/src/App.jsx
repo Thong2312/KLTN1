@@ -21,6 +21,7 @@ import OpenRoute from "./components/core/Auth/OpenRoute"
 import ProtectedRoute from "./components/core/Auth/ProtectedRoute";
 
 import Dashboard from "./pages/Dashboard";
+import Chat from "./pages/Chat";
 import MyProfile from "./components/core/Dashboard/MyProfile";
 import Settings from "./components/core/Dashboard/Settings/Settings";
 import MyCourses from './components/core/Dashboard/MyCourses';
@@ -201,6 +202,15 @@ function App() {
             />
           )}
         </Route>
+
+        <Route
+          path="/dashboard/chat"
+          element={
+            <ProtectedRoute>
+              <Chat />
+            </ProtectedRoute>
+          }
+        />
 
 
 
