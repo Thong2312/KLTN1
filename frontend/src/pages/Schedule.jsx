@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import './Schedule.css';
 
 const Schedule = () => {
   const [courses, setCourses] = useState([]);
@@ -38,7 +39,7 @@ const Schedule = () => {
   };
 
   return (
-    <div>
+    <div className="text-black">
       <h1>Quản lý lịch học</h1>
       <form onSubmit={handleSubmit}>
         <label>Tiêu đề:</label>
@@ -51,18 +52,28 @@ const Schedule = () => {
         <input type="datetime-local" value={endDateTime} onChange={(e) => setEndDateTime(e.target.value)} required />
 
         <label>Khóa học:</label>
-        <select value={selectedCourse} onChange={(e) => handleCourseChange(e.target.value)} required>
-          <option value="">Chọn khóa học</option>
+        <select
+          className="w-full p-2 rounded border border-gray-300 bg-white select-black-text"
+          value={selectedCourse}
+          onChange={(e) => handleCourseChange(e.target.value)}
+          required
+        >
+          <option value="" className="select-black-text">Chọn khóa học</option>
           {courses.map(course => (
-            <option key={course._id} value={course._id}>{course.name}</option>
+            <option key={course._id} value={course._id} className="select-black-text">{course.courseName}</option>
           ))}
         </select>
 
         <label>Giáo viên:</label>
-        <select value={selectedTeacher} onChange={(e) => setSelectedTeacher(e.target.value)} required>
-          <option value="">Chọn giáo viên</option>
+        <select
+          className="w-full p-2 rounded border border-gray-300 bg-white select-black-text"
+          value={selectedTeacher}
+          onChange={(e) => setSelectedTeacher(e.target.value)}
+          required
+        >
+          <option value="" className="select-black-text">Chọn giáo viên</option>
           {teachers.map(teacher => (
-            <option key={teacher._id} value={teacher._id}>{teacher.name}</option>
+            <option key={teacher._id} value={teacher._id} className="select-black-text">{teacher.name}</option>
           ))}
         </select>
 

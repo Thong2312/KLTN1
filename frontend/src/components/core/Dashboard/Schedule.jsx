@@ -177,9 +177,9 @@ const Schedule = () => {
             style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
           >
             <option value="">-- Chọn khóa học --</option>
-            {courses.map((c) => (
-              <option key={c._id} value={c._id}>{c.title}</option>
-            ))}
+{courses.map((c) => (
+  <option key={c._id} value={c._id}>{c.courseName}</option>
+))}
           </select>
         </div>
         <div style={{ marginBottom: 16 }}>
@@ -192,9 +192,9 @@ const Schedule = () => {
             style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
           >
             <option value="">-- Chọn giáo viên --</option>
-            {teachers.map((t) => (
-              <option key={t._id} value={t._id}>{t.name}</option>
-            ))}
+{teachers.map((t) => (
+  <option key={t._id} value={t._id}>{t.firstName + " " + t.lastName}</option>
+))}
           </select>
         </div>
         <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>

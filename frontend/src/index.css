@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+select, select option {
+  color: black !important;
+}
+
 
 
 html,

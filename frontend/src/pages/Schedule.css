@@ -1,0 +1,7 @@
+/* Very high specificity CSS override for dropdown text color */
+div.text-black select.select-black-text,
+div.text-black select.select-black-text option {
+  color: black !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
