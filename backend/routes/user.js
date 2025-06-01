@@ -19,6 +19,7 @@ const {
 // Middleware
 const { auth, isAdmin } = require('../middleware/auth');
 const { getAllStudents, getAllInstructors } = require('../controllers/profile');
+const scheduleController = require('../controllers/schedule');
 
 
 // Routes for Login, Signup, and Authentication
@@ -58,6 +59,14 @@ router.post("/reset-password", resetPassword)
 
 router.get("/all-students", auth, isAdmin, getAllStudents)
 router.get("/all-instructors", auth, isAdmin, getAllInstructors)
+
+
+// ********************************************************************************************************
+//                                     Schedule routes
+// ********************************************************************************************************
+
+router.post('/schedule', scheduleController.createSchedule);
+router.get('/schedule', scheduleController.getSchedules);
 
 
 

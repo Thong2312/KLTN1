@@ -91,6 +91,12 @@ export default function Sidebar() {
               setOpenSideMen={setOpenSideMenu}
             />
 
+            <SidebarLink
+              link={{ name: "Quản lý lịch học", path: "/dashboard/schedule" }}
+              iconName="VscCalendar"
+              setOpenSideMenu={setOpenSideMenu}
+            />
+
             <button
               onClick={() =>
                 setConfirmationModal({

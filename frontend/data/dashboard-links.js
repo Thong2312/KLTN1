@@ -68,5 +68,12 @@ export const sidebarLinks = [
     name: "Chat",
     path: "/dashboard/chat",
     icon: "VscComment",
+  },
+  {
+    id: 11,
+    name: "Quản lý lịch học",
+    path: "/dashboard/schedule",
+    type: ACCOUNT_TYPE.ADMIN,
+    icon: "VscCalendar",
   }
 ];

@@ -45,6 +45,8 @@ import AllInstructors from './components/core/Dashboard/AllInstructors';
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PurchaseHistory from "./components/core/Dashboard/PurchaseHistory";
 
+import Schedule from "./components/core/Dashboard/Schedule";
+
 function App() {
 
   const { user } = useSelector((state) => state.profile)
@@ -212,7 +214,14 @@ function App() {
           }
         />
 
-
+          {user?.accountType === ACCOUNT_TYPE.ADMIN && (
+            <>
+              <Route path="dashboard/create-category" element={<CreateCategory />} />
+              <Route path="dashboard/all-students" element={<AllStudents />} />
+              <Route path="dashboard/all-instructors" element={<AllInstructors />} />
+              <Route path="dashboard/schedule" element={<Schedule />} /> {/* Thêm dòng này */}
+            </>
+          )}
 
 
         {/* Page Not Found (404 Page ) */}

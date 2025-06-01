@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { Outlet } from "react-router-dom"
+import { Outlet, Link } from "react-router-dom"
 import Sidebar from '../components/core/Dashboard/Sidebar'
 import Loading from '../components/common/Loading'
 
@@ -28,6 +28,7 @@ const Dashboard = () => {
 
             <div className='h-[calc(100vh-3.5rem)] overflow-auto w-full'>
                 <div className=' p-10 '>
+                    
                     <Outlet />
                 </div>
             </div>

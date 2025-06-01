@@ -459,5 +459,24 @@ exports.deleteCourse = async (req, res) => {
 }
 
 
+// ================ Get Students By Course ================
+exports.getStudentsByCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        // Populate studentsEnrolled, not students
+        const course = await Course.findById(courseId).populate('studentsEnrolled');
+
+        if (!course) {
+            return res.status(404).json({ success: false, message: 'Khóa học không tồn tại' });
+        }
+
+        // Return students in the expected format
+        res.status(200).json({ success: true, students: course.studentsEnrolled });
+    } catch (error) {
+        res.status(500).json({ success: false, message: 'Lỗi khi lấy danh sách học sinh', error });
+    }
+};
+
+
 
 

@@ -19,6 +19,7 @@ const {
     editCourse,
     deleteCourse,
     getInstructorCourses,
+    getStudentsByCourse
 
 } = require('../controllers/course')
 
@@ -124,6 +125,7 @@ router.get('/getReviews', getAllRatingReview);
 // Chat routes for student only
 router.get('/:courseId/chat', auth, chatController.getChatMessages);
 router.post('/:courseId/chat', auth, chatController.sendMessage);
+router.get('/:courseId/students', auth, getStudentsByCourse);
 
 router.get('/chat/enrolled-courses', auth, chatController.getEnrolledCourses);
 
