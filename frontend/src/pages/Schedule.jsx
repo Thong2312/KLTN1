@@ -1,91 +1,125 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Schedule.css';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
 
 const Schedule = () => {
-  const [courses, setCourses] = useState([]);
-  const [teachers, setTeachers] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState('');
-  const [selectedTeacher, setSelectedTeacher] = useState('');
-  const [title, setTitle] = useState('');
-  const [startDateTime, setStartDateTime] = useState('');
-  const [endDateTime, setEndDateTime] = useState('');
-  const [students, setStudents] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const token = useSelector(state => state.auth.token);
 
   useEffect(() => {
-    // Fetch courses and teachers
-    axios.get('/api/v1/course/getAllCourses').then(res => setCourses(res.data.data));
-    axios.get('/api/v1/auth/all-instructors').then(res => setTeachers(res.data.allInstructorsDetails || []));
-  }, []);
+    if (token) {
+      axios.get("/api/v1/user/schedule", {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then(res => setSchedules(res.data))
+        .catch(() => setSchedules([]));
+    }
+  }, [token]);
 
-  const handleCourseChange = async (courseId) => {
-    setSelectedCourse(courseId);
-    const res = await axios.get(`/api/v1/course/${courseId}/students`);
-    setStudents(res.data.students || []);
+  const renderHeader = () => {
+    const dateFormat = "MMMM yyyy";
+
+    return (
+      <div className="header row flex-middle" style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
+        <div className="col col-start">
+          <button onClick={prevMonth} style={{ cursor: "pointer" }}>Prev</button>
+        </div>
+        <div className="col col-center">
+          <span>{format(currentMonth, dateFormat)}</span>
+        </div>
+        <div className="col col-end">
+          <button onClick={nextMonth} style={{ cursor: "pointer" }}>Next</button>
+        </div>
+      </div>
+    );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const scheduleData = {
-      title,
-      startDateTime,
-      endDateTime,
-      courseId: selectedCourse,
-      teacherId: selectedTeacher,
-    };
-    // TODO: Sửa endpoint này nếu backend đã có API cho schedule, ví dụ: /api/v1/user/schedule
-    // await axios.post('/api/v1/user/schedule', scheduleData);
-    alert('Lịch học đã được tạo thành công!');
+  const renderDays = () => {
+    const days = [];
+    const dateFormat = "EEEEEE";
+    const startDate = startOfWeek(currentMonth, { weekStartsOn: 1 });
+
+    for (let i = 0; i < 7; i++) {
+      days.push(
+        <div className="col col-center" key={i} style={{ flex: 1, textAlign: "center", fontWeight: "bold" }}>
+          {format(addDays(startDate, i), dateFormat)}
+        </div>
+      );
+    }
+    return <div className="days row" style={{ display: "flex" }}>{days}</div>;
+  };
+
+  const renderCells = () => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(monthStart);
+    const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
+    const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
+
+    const rows = [];
+    let days = [];
+    let day = startDate;
+    let formattedDate = "";
+
+    while (day <= endDate) {
+      for (let i = 0; i < 7; i++) {
+        formattedDate = format(day, "d");
+        const cloneDay = day;
+        const daySchedules = schedules.filter(sch =>
+          isSameDay(new Date(sch.startDateTime), cloneDay)
+        );
+
+        days.push(
+          <div
+            className={`col cell ${!isSameMonth(day, monthStart) ? "disabled" : isSameDay(day, new Date()) ? "selected" : ""}`}
+            key={day}
+            style={{
+              flex: 1,
+              border: "1px solid #ddd",
+              height: 100,
+              padding: 8,
+              backgroundColor: isSameDay(day, new Date()) ? "#e6f7ff" : "white",
+              overflowY: "auto",
+              position: "relative"
+            }}
+          >
+            <span className="number" style={{ fontWeight: "bold" }}>{formattedDate}</span>
+            <div className="events" style={{ marginTop: 4 }}>
+              {daySchedules.map((sch, idx) => (
+                <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 2, fontSize: 12, cursor: "pointer" }}>
+                  <b>{sch.title}</b><br />
+                  {format(new Date(sch.startDateTime), "HH:mm")} - {format(new Date(sch.endDateTime), "HH:mm")}
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+        day = addDays(day, 1);
+      }
+      rows.push(
+        <div className="row" key={day} style={{ display: "flex" }}>
+          {days}
+        </div>
+      );
+      days = [];
+    }
+    return <div className="body">{rows}</div>;
+  };
+
+  const nextMonth = () => {
+    setCurrentMonth(addMonths(currentMonth, 1));
+  };
+
+  const prevMonth = () => {
+    setCurrentMonth(subMonths(currentMonth, 1));
   };
 
   return (
-    <div className="text-black">
-      <h1>Quản lý lịch học</h1>
-      <form onSubmit={handleSubmit}>
-        <label>Tiêu đề:</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} required />
-
-        <label>Ngày và giờ bắt đầu:</label>
-        <input type="datetime-local" value={startDateTime} onChange={(e) => setStartDateTime(e.target.value)} required />
-
-        <label>Ngày và giờ kết thúc:</label>
-        <input type="datetime-local" value={endDateTime} onChange={(e) => setEndDateTime(e.target.value)} required />
-
-        <label>Khóa học:</label>
-        <select
-          className="w-full p-2 rounded border border-gray-300 bg-white select-black-text"
-          value={selectedCourse}
-          onChange={(e) => handleCourseChange(e.target.value)}
-          required
-        >
-          <option value="" className="select-black-text">Chọn khóa học</option>
-          {courses.map(course => (
-            <option key={course._id} value={course._id} className="select-black-text">{course.courseName}</option>
-          ))}
-        </select>
-
-        <label>Giáo viên:</label>
-        <select
-          className="w-full p-2 rounded border border-gray-300 bg-white select-black-text"
-          value={selectedTeacher}
-          onChange={(e) => setSelectedTeacher(e.target.value)}
-          required
-        >
-          <option value="" className="select-black-text">Chọn giáo viên</option>
-          {teachers.map(teacher => (
-            <option key={teacher._id} value={teacher._id} className="select-black-text">{teacher.name}</option>
-          ))}
-        </select>
-
-        <label>Danh sách học sinh:</label>
-        <ul>
-          {students.map(student => (
-            <li key={student._id}>{student.name}</li>
-          ))}
-        </ul>
-
-        <button type="submit">Tạo lịch học</button>
-      </form>
+    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Lịch học của tôi</h1>
+      {renderHeader()}
+      {renderDays()}
+      {renderCells()}
     </div>
   );
 };

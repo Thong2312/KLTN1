@@ -219,7 +219,13 @@ function App() {
               <Route path="dashboard/create-category" element={<CreateCategory />} />
               <Route path="dashboard/all-students" element={<AllStudents />} />
               <Route path="dashboard/all-instructors" element={<AllInstructors />} />
-              <Route path="dashboard/schedule" element={<Schedule />} /> {/* Thêm dòng này */}
+              <Route path="dashboard/schedule" element={<Schedule />} />
+            </>
+          )}
+
+          {(user?.accountType === ACCOUNT_TYPE.STUDENT || user?.accountType === ACCOUNT_TYPE.INSTRUCTOR) && (
+            <>
+              <Route path="dashboard/schedule" element={<Schedule />} />
             </>
           )}
 

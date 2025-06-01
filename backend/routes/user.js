@@ -42,6 +42,7 @@ router.post('/changepassword', auth, changePassword);
 
 
 
+
 // ********************************************************************************************************
 //                                      Reset Password
 // ********************************************************************************************************
@@ -65,8 +66,8 @@ router.get("/all-instructors", auth, isAdmin, getAllInstructors)
 //                                     Schedule routes
 // ********************************************************************************************************
 
-router.post('/schedule', scheduleController.createSchedule);
-router.get('/schedule', scheduleController.getSchedules);
+router.post('/schedule', auth, scheduleController.createSchedule);
+router.get('/schedule', auth, scheduleController.getSchedules);
 
 
 
