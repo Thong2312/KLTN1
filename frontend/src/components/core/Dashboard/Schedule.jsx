@@ -23,6 +23,9 @@ const Schedule = () => {
   const [schedules, setSchedules] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const token = useSelector(state => state.auth.token);
+  const user = useSelector(state => state.profile.user);
+  console.log("User in Schedule.jsx:", user);
+  console.log("User role in Schedule.jsx:", user?.role);
 
   const renderTimeOptions = () => {
     const times = [];
@@ -227,116 +230,120 @@ const Schedule = () => {
 
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Quản lý lịch học</h1>
-      <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 8, padding: 24, marginBottom: 32, boxShadow: "0 2px 8px #eee" }}>
-        <div style={{ marginBottom: 16 }}>
-          <label>Tiêu đề</label>
-          <input
-            type="text"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-          />
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label>Khóa học</label>
-          <select
-            name="course"
-            value={form.course}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-          >
-            <option value="">-- Chọn khóa học --</option>
-            {courses.map((c) => (
-              <option key={c._id} value={c._id}>{c.courseName}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label>Giáo viên</label>
-          <select
-            name="teacher"
-            value={form.teacher}
-            onChange={handleChange}
-            required
-            style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-          >
-            <option value="">-- Chọn giáo viên --</option>
-            {teachers.map((t) => (
-              <option key={t._id} value={t._id}>{t.firstName + " " + t.lastName}</option>
-            ))}
-          </select>
-        </div>
-        <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <label>Ngày bắt đầu</label>
-            <input
-              type="date"
-              name="startDate"
-              value={form.startDate}
-              onChange={e => handleDateTimeChange("startDate", e.target.value)}
-              required
-              style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label>Giờ bắt đầu</label>
-            <select
-              name="startTime"
-              value={form.startTime}
-              onChange={e => handleDateTimeChange("startTime", e.target.value)}
-              required
-              style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-            >
-              <option value="">-- Chọn giờ --</option>
-              {renderTimeOptions()}
-            </select>
-          </div>
-        </div>
-        <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
-          <div style={{ flex: 1 }}>
-            <label>Ngày kết thúc</label>
-            <input
-              type="date"
-              name="endDate"
-              value={form.endDate}
-              onChange={e => handleDateTimeChange("endDate", e.target.value)}
-              required
-              style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-            />
-          </div>
-          <div style={{ flex: 1 }}>
-            <label>Giờ kết thúc</label>
-            <select
-              name="endTime"
-              value={form.endTime}
-              onChange={e => handleDateTimeChange("endTime", e.target.value)}
-              required
-              style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
-            >
-              <option value="">-- Chọn giờ --</option>
-              {renderTimeOptions()}
-            </select>
-          </div>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label>Danh sách học sinh</label>
-          <ul style={{ marginLeft: 20, marginTop: 4 }}>
-            {students.length === 0
-              ? <li style={{ color: "#888" }}>Chưa có học sinh đăng ký</li>
-              : students.map((s) => <li key={s._id}>{s.name} ({s.email})</li>)
-            }
-          </ul>
-        </div>
-        <div style={{ textAlign: "right" }}>
-          <button type="submit" style={{ background: "#2563eb", color: "#fff", padding: "8px 24px", border: "none", borderRadius: 4, fontWeight: 600 }}>
-            Tạo lịch học
-          </button>
-        </div>
-      </form>
+      {user?.accountType === "Admin" && (
+        <>
+          <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Quản lý lịch học</h1>
+          <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 8, padding: 24, marginBottom: 32, boxShadow: "0 2px 8px #eee" }}>
+            <div style={{ marginBottom: 16 }}>
+              <label>Tiêu đề</label>
+              <input
+                type="text"
+                name="title"
+                value={form.title}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+              />
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label>Khóa học</label>
+              <select
+                name="course"
+                value={form.course}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+              >
+                <option value="">-- Chọn khóa học --</option>
+                {courses.map((c) => (
+                  <option key={c._id} value={c._id}>{c.courseName}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label>Giáo viên</label>
+              <select
+                name="teacher"
+                value={form.teacher}
+                onChange={handleChange}
+                required
+                style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+              >
+                <option value="">-- Chọn giáo viên --</option>
+                {teachers.map((t) => (
+                  <option key={t._id} value={t._id}>{t.firstName + " " + t.lastName}</option>
+                ))}
+              </select>
+            </div>
+            <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <label>Ngày bắt đầu</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={form.startDate}
+                  onChange={e => handleDateTimeChange("startDate", e.target.value)}
+                  required
+                  style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label>Giờ bắt đầu</label>
+                <select
+                  name="startTime"
+                  value={form.startTime}
+                  onChange={e => handleDateTimeChange("startTime", e.target.value)}
+                  required
+                  style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+                >
+                  <option value="">-- Chọn giờ --</option>
+                  {renderTimeOptions()}
+                </select>
+              </div>
+            </div>
+            <div style={{ marginBottom: 16, display: "flex", gap: 16 }}>
+              <div style={{ flex: 1 }}>
+                <label>Ngày kết thúc</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={form.endDate}
+                  onChange={e => handleDateTimeChange("endDate", e.target.value)}
+                  required
+                  style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <label>Giờ kết thúc</label>
+                <select
+                  name="endTime"
+                  value={form.endTime}
+                  onChange={e => handleDateTimeChange("endTime", e.target.value)}
+                  required
+                  style={{ width: "100%", padding: 8, borderRadius: 4, border: "1px solid #ccc", marginTop: 4 }}
+                >
+                  <option value="">-- Chọn giờ --</option>
+                  {renderTimeOptions()}
+                </select>
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label>Danh sách học sinh</label>
+              <ul style={{ marginLeft: 20, marginTop: 4 }}>
+                {students.length === 0
+                  ? <li style={{ color: "#888" }}>Chưa có học sinh đăng ký</li>
+                  : students.map((s) => <li key={s._id}>{s.name} ({s.email})</li>)
+                }
+              </ul>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <button type="submit" style={{ background: "#2563eb", color: "#fff", padding: "8px 24px", border: "none", borderRadius: 4, fontWeight: 600 }}>
+                Tạo lịch học
+              </button>
+            </div>
+          </form>
+        </>
+      )}
       <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 12 }}>Thời khoá biểu tháng</h2>
       {renderHeader()}
       {renderDays()}
