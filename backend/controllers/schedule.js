@@ -34,13 +34,21 @@ exports.createSchedule = async (req, res) => {
 exports.getSchedules = async (req, res) => {
   try {
     const userId = req.user.id;
+    const accountType = req.user.accountType;
 
-    const schedules = await Schedule.find({
-      $or: [
-        { students: userId },
-        { teacher: userId }
-      ]
-    }).populate('course teacher students');
+    let schedules;
+    if (accountType === 'Admin') {
+      // Admin gets all schedules
+      schedules = await Schedule.find({}).populate('course teacher students');
+    } else {
+      // Other users get schedules where they are student or teacher
+      schedules = await Schedule.find({
+        $or: [
+          { students: userId },
+          { teacher: userId }
+        ]
+      }).populate('course teacher students');
+    }
 
     res.status(200).json(schedules);
   } catch (error) {
