@@ -188,7 +188,7 @@ const Schedule = () => {
             className={`col cell ${!isSameMonth(day, monthStart) ? "disabled" : isSameDay(day, new Date()) ? "selected" : ""}`}
             key={day}
             style={{
-              flex: 1,
+              minWidth: 120,
               border: "1px solid #ddd",
               height: 100,
               padding: 8,
@@ -229,7 +229,7 @@ const Schedule = () => {
   };
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto", padding: 24 }}>
+    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 24, overflowX: "auto" }}>
       {user?.accountType === "Admin" && (
         <>
           <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Quản lý lịch học</h1>
