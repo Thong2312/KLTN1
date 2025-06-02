@@ -46,22 +46,29 @@ export const sidebarLinks = [
     id: 7,
     name: "Create Category",
     path: "/dashboard/create-category",
-    type: ACCOUNT_TYPE.ADMIN,
+    type: ACCOUNT_TYPE.ADMIN || ACCOUNT_TYPE.OWNER,
     icon: "VscNewFolder",
   },
   {
     id: 8,
     name: "All Students",
     path: "/dashboard/all-students",
-    type: ACCOUNT_TYPE.ADMIN,
+    type: ACCOUNT_TYPE.ADMIN || ACCOUNT_TYPE.OWNER,
     icon: "VscBook",
   },
   {
     id: 9,
     name: "All Instructors",
     path: "/dashboard/all-instructors",
-    type: ACCOUNT_TYPE.ADMIN,
+    type: ACCOUNT_TYPE.ADMIN || ACCOUNT_TYPE.OWNER,
     icon: "VscNotebook",
+  },
+  {
+    id: 12,
+    name: "Admin Management",
+    path: "/dashboard/all-admins",
+    type: ACCOUNT_TYPE.OWNER,
+    icon: "VscShield",
   },
   {
     id: 10,
@@ -73,7 +80,6 @@ export const sidebarLinks = [
     id: 11,
     name: "Quản lý lịch học",
     path: "/dashboard/schedule",
-    type: ACCOUNT_TYPE.ADMIN,
     icon: "VscCalendar",
   }
 ];
