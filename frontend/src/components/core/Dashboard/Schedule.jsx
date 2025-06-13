@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
+import {
+  startOfMonth, endOfMonth, startOfWeek, endOfWeek,
+  addDays, format, isSameMonth, isSameDay, addMonths, subMonths
+} from "date-fns";
 import { useNavigate } from "react-router-dom";
 
 const Schedule = () => {
@@ -230,6 +233,7 @@ const Schedule = () => {
     return <div className="days row" style={{ display: "flex" }}>{days}</div>;
   };
 
+  // --- SỬA PHẦN NÀY: renderCells với layout rộng hơn ---
   const renderCells = () => {
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(monthStart);
@@ -254,13 +258,15 @@ const Schedule = () => {
             className={`col cell ${!isSameMonth(day, monthStart) ? "disabled" : isSameDay(day, new Date()) ? "selected" : ""}`}
             key={day}
             style={{
-              minWidth: 120,
+              minWidth: 210,
+              maxWidth: 250,
               border: "1px solid #ddd",
-              height: 100,
-              padding: 8,
+              height: 210,
+              padding: 14,
               backgroundColor: isSameDay(day, new Date()) ? "#e6f7ff" : "white",
-              overflowY: "auto",
-              position: "relative"
+              overflowY: "visible",
+              position: "relative",
+              verticalAlign: "top"
             }}
           >
             <span className="number" style={{ fontWeight: "bold" }}>{formattedDate}</span>
@@ -270,7 +276,7 @@ const Schedule = () => {
                 const courseSections = sch.course && sch.course.courseContent;
                 const sectionId = Array.isArray(courseSections) && courseSections.length > 0 ? courseSections[0] : null;
                 return (
-                  <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 2, fontSize: 12 }}>
+                  <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 6, fontSize: 13 }}>
                     <b>{sch.title}</b><br />
                     {format(new Date(sch.startDateTime), "HH:mm")} - {format(new Date(sch.endDateTime), "HH:mm")}
                     {courseId && (
@@ -279,7 +285,7 @@ const Schedule = () => {
                           display: 'block',
                           marginTop: 6,
                           padding: '2px 10px',
-                          fontSize: 12,
+                          fontSize: 13,
                           borderRadius: 4,
                           background: '#2563eb',
                           color: '#fff',
@@ -297,42 +303,41 @@ const Schedule = () => {
                         Xem môn học
                       </button>
                     )}
-                    {/* Nút Sửa */}
                     {user?.accountType === "Admin" && (
-                    <>
-                      <button
-                        style={{
-                          marginTop: 6,
-                          marginRight: 6,
-                          padding: '2px 10px',
-                          fontSize: 12,
-                          borderRadius: 4,
-                          background: '#facc15',
-                          color: '#222',
-                          border: 'none',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => handleEditSchedule(sch)}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        style={{
-                          marginTop: 6,
-                          padding: '2px 10px',
-                          fontSize: 12,
-                          borderRadius: 4,
-                          background: '#ef4444',
-                          color: '#fff',
-                          border: 'none',
-                          cursor: 'pointer'
-                        }}
-                        onClick={() => handleDeleteSchedule(sch._id)}
-                      >
-                        Xóa
-                      </button>
-                    </>
-                  )}
+                      <>
+                        <button
+                          style={{
+                            marginTop: 6,
+                            marginRight: 6,
+                            padding: '2px 10px',
+                            fontSize: 13,
+                            borderRadius: 4,
+                            background: '#facc15',
+                            color: '#222',
+                            border: 'none',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleEditSchedule(sch)}
+                        >
+                          Sửa
+                        </button>
+                        <button
+                          style={{
+                            marginTop: 6,
+                            padding: '2px 10px',
+                            fontSize: 13,
+                            borderRadius: 4,
+                            background: '#ef4444',
+                            color: '#fff',
+                            border: 'none',
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleDeleteSchedule(sch._id)}
+                        >
+                          Xóa
+                        </button>
+                      </>
+                    )}
                   </div>
                 );
               })}
@@ -360,7 +365,7 @@ const Schedule = () => {
   };
 
   return (
-    <div style={{ maxWidth: 1200, margin: "0 auto", padding: 24, overflowX: "auto" }}>
+    <div style={{ maxWidth: 1520, margin: "0 auto", padding: 24, overflowX: "auto" }}>
       {user?.accountType === "Admin" && (
         <>
           <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Quản lý lịch học</h1>
@@ -503,7 +508,9 @@ const Schedule = () => {
       <h2 style={{ fontSize: 22, fontWeight: 600, marginBottom: 12 }}>Thời khoá biểu tháng</h2>
       {renderHeader()}
       {renderDays()}
-      {renderCells()}
+      <div style={{ width: "100%", minWidth: 1500 }}>
+        {renderCells()}
+      </div>
     </div>
   );
 };
