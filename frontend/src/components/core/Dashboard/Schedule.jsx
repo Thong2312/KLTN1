@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 const Schedule = () => {
   const [courses, setCourses] = useState([]);
@@ -24,6 +25,7 @@ const Schedule = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const token = useSelector(state => state.auth.token);
   const user = useSelector(state => state.profile.user);
+  const navigate = useNavigate();
   console.log("User in Schedule.jsx:", user);
   console.log("User role in Schedule.jsx:", user?.role);
 
@@ -199,12 +201,44 @@ const Schedule = () => {
           >
             <span className="number" style={{ fontWeight: "bold" }}>{formattedDate}</span>
             <div className="events" style={{ marginTop: 4 }}>
-              {daySchedules.map((sch, idx) => (
-                <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 2, fontSize: 12, cursor: "pointer" }}>
-                  <b>{sch.title}</b><br />
-                  {format(new Date(sch.startDateTime), "HH:mm")} - {format(new Date(sch.endDateTime), "HH:mm")}
-                </div>
-              ))}
+              {daySchedules.map((sch, idx) => {
+                const courseId = sch.course && sch.course._id;
+                const courseSections = sch.course && sch.course.courseContent;
+                // Lấy sectionId và subSectionId đầu tiên nếu có
+                const sectionId = Array.isArray(courseSections) && courseSections.length > 0 ? courseSections[0] : null;
+                // subSectionId giả định là phần tử đầu tiên của section nếu có (cần backend trả về đúng cấu trúc nếu muốn chính xác hơn)
+                // Nếu không có, chỉ dẫn đến /view-course/:courseId
+                return (
+                  <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 2, fontSize: 12 }}>
+                    <b>{sch.title}</b><br />
+                    {format(new Date(sch.startDateTime), "HH:mm")} - {format(new Date(sch.endDateTime), "HH:mm")}
+                    {courseId && (
+                      <button
+                        style={{
+                          display: 'block',
+                          marginTop: 6,
+                          padding: '2px 10px',
+                          fontSize: 12,
+                          borderRadius: 4,
+                          background: '#2563eb',
+                          color: '#fff',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          if (courseId && sectionId) {
+                            navigate(`/view-course/${courseId}/section/${sectionId}/sub-section/${sectionId}`);
+                          } else {
+                            navigate(`/view-course/${courseId}`);
+                          }
+                        }}
+                      >
+                        Xem môn học
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
