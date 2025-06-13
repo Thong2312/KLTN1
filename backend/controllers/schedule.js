@@ -55,3 +55,28 @@ exports.getSchedules = async (req, res) => {
     res.status(500).json({ message: 'Lỗi khi lấy danh sách lịch học', error });
   }
 };
+
+// Xóa lịch học
+exports.deleteSchedule = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleted = await Schedule.findByIdAndDelete(id);
+    if (!deleted) return res.status(404).json({ message: 'Không tìm thấy lịch học' });
+    res.status(200).json({ message: 'Đã xóa lịch học thành công' });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi khi xóa lịch học', error });
+  }
+};
+
+// Sửa lịch học
+exports.updateSchedule = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    const updated = await Schedule.findByIdAndUpdate(id, updateData, { new: true });
+    if (!updated) return res.status(404).json({ message: 'Không tìm thấy lịch học' });
+    res.status(200).json({ message: 'Đã cập nhật lịch học', schedule: updated });
+  } catch (error) {
+    res.status(500).json({ message: 'Lỗi khi cập nhật lịch học', error });
+  }
+};

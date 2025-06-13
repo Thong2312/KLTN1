@@ -23,11 +23,11 @@ const Schedule = () => {
   });
   const [schedules, setSchedules] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const token = useSelector(state => state.auth.token);
   const user = useSelector(state => state.profile.user);
   const navigate = useNavigate();
-  console.log("User in Schedule.jsx:", user);
-  console.log("User role in Schedule.jsx:", user?.role);
 
   const renderTimeOptions = () => {
     const times = [];
@@ -46,9 +46,7 @@ const Schedule = () => {
   };
 
   useEffect(() => {
-    // Fetch courses
     axios.get("/api/v1/course/getAllCourses").then(res => setCourses(res.data.data));
-    // Fetch teachers if token exists
     if (token) {
       axios.get("/api/v1/auth/all-instructors", {
         headers: { Authorization: `Bearer ${token}` }
@@ -57,7 +55,6 @@ const Schedule = () => {
     } else {
       setTeachers([]);
     }
-    // Fetch schedules
     axios.get("/api/v1/user/schedule", {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => setSchedules(res.data))
@@ -127,6 +124,74 @@ const Schedule = () => {
       endDate: "",
     });
     setSelectedCourse("");
+    refreshSchedules();
+  };
+
+  const handleEditSchedule = (sch) => {
+    setIsEditing(true);
+    setEditingId(sch._id);
+    setForm({
+      title: sch.title,
+      startDateTime: sch.startDateTime?.slice(0, 16) || "",
+      endDateTime: sch.endDateTime?.slice(0, 16) || "",
+      course: sch.course?._id || "",
+      teacher: sch.teacher?._id || "",
+      students: sch.students?.map(s => s._id) || [],
+      startTime: sch.startDateTime ? format(new Date(sch.startDateTime), "HH:mm") : "",
+      endTime: sch.endDateTime ? format(new Date(sch.endDateTime), "HH:mm") : "",
+      startDate: sch.startDateTime ? format(new Date(sch.startDateTime), "yyyy-MM-dd") : "",
+      endDate: sch.endDateTime ? format(new Date(sch.endDateTime), "yyyy-MM-dd") : "",
+    });
+    setSelectedCourse(sch.course?._id || "");
+  };
+
+  const handleUpdateSchedule = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`/api/v1/user/schedule/${editingId}`, {
+        title: form.title,
+        startDateTime: form.startDateTime,
+        endDateTime: form.endDateTime,
+        courseId: form.course,
+        teacherId: form.teacher,
+        students: form.students,
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setIsEditing(false);
+      setEditingId(null);
+      setForm({
+        title: "",
+        startDateTime: "",
+        endDateTime: "",
+        course: "",
+        teacher: "",
+        students: [],
+        startTime: "",
+        endTime: "",
+        startDate: "",
+        endDate: "",
+      });
+      setSelectedCourse("");
+      refreshSchedules();
+    } catch (err) {
+      alert("Cập nhật lịch học thất bại!");
+    }
+  };
+
+  const handleDeleteSchedule = async (id) => {
+    if (!window.confirm("Bạn có chắc muốn xóa lịch học này?")) return;
+    try {
+      await axios.delete(`/api/v1/user/schedule/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSchedules(schedules.filter(sch => sch._id !== id));
+    } catch (err) {
+      alert("Xóa lịch học thất bại!");
+    }
+  };
+
+  const refreshSchedules = () => {
     axios.get("/api/v1/user/schedule", {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => setSchedules(res.data))
@@ -135,7 +200,6 @@ const Schedule = () => {
 
   const renderHeader = () => {
     const dateFormat = "MMMM yyyy";
-
     return (
       <div className="header row flex-middle" style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
         <div className="col col-start">
@@ -204,10 +268,7 @@ const Schedule = () => {
               {daySchedules.map((sch, idx) => {
                 const courseId = sch.course && sch.course._id;
                 const courseSections = sch.course && sch.course.courseContent;
-                // Lấy sectionId và subSectionId đầu tiên nếu có
                 const sectionId = Array.isArray(courseSections) && courseSections.length > 0 ? courseSections[0] : null;
-                // subSectionId giả định là phần tử đầu tiên của section nếu có (cần backend trả về đúng cấu trúc nếu muốn chính xác hơn)
-                // Nếu không có, chỉ dẫn đến /view-course/:courseId
                 return (
                   <div key={idx} style={{ backgroundColor: "#bae7ff", marginBottom: 4, borderRadius: 4, padding: 2, fontSize: 12 }}>
                     <b>{sch.title}</b><br />
@@ -236,6 +297,42 @@ const Schedule = () => {
                         Xem môn học
                       </button>
                     )}
+                    {/* Nút Sửa */}
+                    {user?.accountType === "Admin" && (
+                    <>
+                      <button
+                        style={{
+                          marginTop: 6,
+                          marginRight: 6,
+                          padding: '2px 10px',
+                          fontSize: 12,
+                          borderRadius: 4,
+                          background: '#facc15',
+                          color: '#222',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleEditSchedule(sch)}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        style={{
+                          marginTop: 6,
+                          padding: '2px 10px',
+                          fontSize: 12,
+                          borderRadius: 4,
+                          background: '#ef4444',
+                          color: '#fff',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => handleDeleteSchedule(sch._id)}
+                      >
+                        Xóa
+                      </button>
+                    </>
+                  )}
                   </div>
                 );
               })}
@@ -267,7 +364,7 @@ const Schedule = () => {
       {user?.accountType === "Admin" && (
         <>
           <h1 style={{ fontSize: 28, fontWeight: 700, marginBottom: 24 }}>Quản lý lịch học</h1>
-          <form onSubmit={handleSubmit} style={{ background: "#fff", borderRadius: 8, padding: 24, marginBottom: 32, boxShadow: "0 2px 8px #eee" }}>
+          <form onSubmit={isEditing ? handleUpdateSchedule : handleSubmit} style={{ background: "#fff", borderRadius: 8, padding: 24, marginBottom: 32, boxShadow: "0 2px 8px #eee" }}>
             <div style={{ marginBottom: 16 }}>
               <label>Tiêu đề</label>
               <input
@@ -372,8 +469,33 @@ const Schedule = () => {
             </div>
             <div style={{ textAlign: "right" }}>
               <button type="submit" style={{ background: "#2563eb", color: "#fff", padding: "8px 24px", border: "none", borderRadius: 4, fontWeight: 600 }}>
-                Tạo lịch học
+                {isEditing ? "Cập nhật lịch học" : "Tạo lịch học"}
               </button>
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditingId(null);
+                    setForm({
+                      title: "",
+                      startDateTime: "",
+                      endDateTime: "",
+                      course: "",
+                      teacher: "",
+                      students: [],
+                      startTime: "",
+                      endTime: "",
+                      startDate: "",
+                      endDate: "",
+                    });
+                    setSelectedCourse("");
+                  }}
+                  style={{ marginLeft: 8 }}
+                >
+                  Hủy
+                </button>
+              )}
             </div>
           </form>
         </>
