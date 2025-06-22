@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { Route, Routes, useLocation, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -198,7 +197,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          {user?.accountType === ACCOUNT_TYPE.STUDENT && (
+          {(user?.accountType === ACCOUNT_TYPE.STUDENT || user?.accountType === ACCOUNT_TYPE.ADMIN) && (
             <Route
               path="view-course/:courseId/section/:sectionId/sub-section/:subSectionId"
               element={<VideoDetails />}

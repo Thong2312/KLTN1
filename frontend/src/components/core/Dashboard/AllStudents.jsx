@@ -99,21 +99,30 @@ const AllStudents = () => {
                       <span className="text-gray-400">Chưa tham gia khóa học nào</span>
                     ) : (
                       <ul className="list-disc ml-4">
-                        {student.courses.map(course => (
-                          <li key={course._id}>
-                            <a
-                              href={`/dashboard/view-course/${course._id}`}
-                              className="text-blue-600 hover:underline"
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {course.courseName}
-                            </a>
-                            {course.createdAt && (
-                              <span className="ml-2 text-xs text-gray-500">(Tham gia: {new Date(course.createdAt).toLocaleDateString()})</span>
-                            )}
-                          </li>
-                        ))}
+                        {student.courses.map(course => {
+                          // Log dữ liệu từng course để debug chi tiết
+                          console.log('Student:', student.email, 'Course:', JSON.stringify(course, null, 2));
+                          const courseId = course._id;
+                          // Lấy sectionId và subSectionId từ mảng courseContent (dạng ID string)
+                          const courseSections = course.courseContent || course.sections;
+                          const sectionId = Array.isArray(courseSections) && courseSections.length > 0 ? courseSections[0] : '';
+                          const subSectionId = sectionId; // Nếu không có subSection thực, dùng luôn sectionId
+                          return (
+                            <li key={courseId}>
+                              <a
+                                href={`/view-course/${courseId}/section/${sectionId}/sub-section/${subSectionId}`}
+                                className="text-blue-600 hover:underline"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
+                                {course.courseName}
+                              </a>
+                              {course.createdAt && (
+                                <span className="ml-2 text-xs text-gray-500">(Tham gia: {new Date(course.createdAt).toLocaleDateString()})</span>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </td>
