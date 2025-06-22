@@ -56,7 +56,7 @@ function AllInstructors() {
   }, []);
 
   return (
-    <div>
+    <div className="text-white">
       <div className="mb-14 flex items-center justify-between text-white">
         <h1 className="text-4xl font-medium text-richblack-5 font-boogaloo text-center sm:text-left">All Instructors Details</h1>
 
@@ -68,9 +68,9 @@ function AllInstructors() {
       <Table className="min-w-full border">
         <Thead>
           <Tr className="bg-gray-100">
-            <Th className="border px-4 py-2">Tên</Th>
-            <Th className="border px-4 py-2">Email</Th>
-            <Th className="border px-4 py-2">Khóa học đã tạo</Th>
+            <Th className="border px-4 py-2 text-white bg-gray-800">Tên</Th>
+            <Th className="border px-4 py-2 text-white bg-gray-800">Email</Th>
+            <Th className="border px-4 py-2 text-white bg-gray-800">Khóa học đã tạo</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -100,14 +100,15 @@ function AllInstructors() {
                           <li key={courseId}>
                             <a
                               href={`/view-course/${courseId}/section/${sectionId}/sub-section/${subSectionId}`}
-                              className="text-blue-600 hover:underline"
+                              className="text-white hover:underline !text-white"
+                              style={{ color: 'white' }}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
                               {course.courseName}
                             </a>
                             {course.createdAt && (
-                              <span className="ml-2 text-xs text-gray-500">(Tạo: {new Date(course.createdAt).toLocaleDateString()})</span>
+                              <span className="ml-2 text-xs text-gray-500">(Tham gia: {new Date(course.createdAt).toLocaleDateString()})</span>
                             )}
                           </li>
                         );

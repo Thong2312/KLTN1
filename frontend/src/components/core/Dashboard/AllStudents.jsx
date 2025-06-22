@@ -56,18 +56,18 @@ const AllStudents = () => {
   }, [search, courseFilter, students]);
 
   return (
-    <div className="p-6">
+    <div className="p-6 text-white">
       <h2 className="text-2xl font-bold mb-4">Danh sách học viên</h2>
       <div className="flex gap-4 mb-4">
         <input
           type="text"
           placeholder="Tìm kiếm theo tên hoặc email..."
-          className="border p-2 rounded w-64"
+          className="border p-2 rounded w-64 text-black"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <select
-          className="border p-2 rounded"
+          className="border p-2 rounded text-black"
           value={courseFilter}
           onChange={e => setCourseFilter(e.target.value)}
         >
@@ -81,9 +81,9 @@ const AllStudents = () => {
         <table className="min-w-full border">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border px-4 py-2">Tên</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Khóa học đã tham gia</th>
+              <th className="border px-4 py-2 text-white bg-gray-800">Tên</th>
+              <th className="border px-4 py-2 text-white bg-gray-800">Email</th>
+              <th className="border px-4 py-2 text-white bg-gray-800">Khóa học đã tham gia</th>
             </tr>
           </thead>
           <tbody>
@@ -111,7 +111,8 @@ const AllStudents = () => {
                             <li key={courseId}>
                               <a
                                 href={`/view-course/${courseId}/section/${sectionId}/sub-section/${subSectionId}`}
-                                className="text-blue-600 hover:underline"
+                                className="text-white hover:underline !text-white"
+                                style={{ color: 'white' }}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
