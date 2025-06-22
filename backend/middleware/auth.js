@@ -8,8 +8,18 @@ require('dotenv').config();
 // user Authentication by checking token validating
 exports.auth = (req, res, next) => {
     try {
-        // extract token by anyone from this 3 ways
-        const token = req.body?.token || req.cookies.token || req.header('Authorization').replace('Bearer ', '');
+        // extract token by any of these 3 ways
+        let token = null;
+        if (req.body?.token) {
+            token = req.body.token;
+        } else if (req.cookies && req.cookies.token) {
+            token = req.cookies.token;
+        } else {
+            const authHeader = req.header('Authorization');
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.replace('Bearer ', '');
+            }
+        }
 
         // if token is missing
         if (!token) {
