@@ -65,96 +65,50 @@ function AllInstructors() {
         </IconBtn>
       </div>
 
-      <Table className="rounded-xl border-2 border-richblack-500 ">
+      <Table className="min-w-full border">
         <Thead>
-          <Tr className="flex gap-x-10 rounded-t-md border-b border-b-richblack-500 px-6 py-2">
-            <Th className="flex-1 text-left text-sm font-medium uppercase text-richblack-100">
-              Instructors : {instructorsCount}
-            </Th>
-
-            <Th className=" ml-4 text-sm font-medium uppercase text-richblack-100">
-              Status
-            </Th>
+          <Tr className="bg-gray-100">
+            <Th className="border px-4 py-2">Tên</Th>
+            <Th className="border px-4 py-2">Email</Th>
+            <Th className="border px-4 py-2">Khóa học đã tạo</Th>
           </Tr>
         </Thead>
         <Tbody>
-          {
-            loading ? <>
-              <LoadingSkeleton />
-              <LoadingSkeleton />
-              <LoadingSkeleton />
-            </>
-              // if No Data Available
-              :
-              !allInstructorDetails ? <div className='text-5xl py-5 bg-yellow-800 text-white text-center'>No Data Available</div>
-                :
-                allInstructorDetails?.map((instructor) => (
-                  <div
-                    key={instructor._id}
-                    className='border-x border-2 border-richblack-500 '
-                  >
-                    <Tr className="flex gap-x-10 px-6 py-8">
-                      <Td className="flex flex-1 gap-x-2">
-                        <img
-                          src={instructor.image}
-                          alt="student"
-                          className="h-[150px] w-[150px] rounded-full "
-                        />
-                        <div className="flex flex-col justify-between">
-                          <p className="text-lg font-semibold text-richblack-5">
-                            <div className='text-sm font-normal'>
-                              <p className='text-base font-bold capitalize'>{instructor.firstName + " " + instructor.lastName}</p>
-                              <p>{instructor.email}</p>
-
-                              <p>
-                                Gender:{" "}
-                                {instructor.additionalDetails.gender
-                                  ? instructor.additionalDetails.gender
-                                  : "Not define"}
-                              </p>
-                              <p>
-                                Mobile No:{" "}
-                                {instructor.additionalDetails.contactNumber
-                                  ? instructor.additionalDetails.contactNumber
-                                  : "No Data"}
-                              </p>
-                              <p>
-                                DOB:{" "}
-                                {instructor.additionalDetails.dateOfBirth
-                                  ? instructor.additionalDetails.dateOfBirth
-                                  : "No Data"}
-                              </p>
-                            </div>
-                          </p>
-                        </div>
-                      </Td>
-                      <Td className="mr-[11.5%] text-sm font-medium text-richblack-100">
-                        {instructor.active ? "Active" : "Inactive"}
-                      </Td>
-                      <Td className="mr-[8%] text-sm font-medium text-richblack-100">
-                        {instructor.approved ? "Approved" : "Not Approved"}
-                      </Td>
-                    </Tr>
-
-
-                    {instructor.courses.length ? (
-                      <Tr className="flex gap-x-10 px-6 pb-5">
-                        <p className="text-yellow-50 ">Built Courses</p>
-                        <div className='grid grid-cols-5 gap-y-5'>
-                          {instructor.courses.map((course) => (
-                            <div className="text-white text-sm" key={course._id}>
-                              <p>{course.courseName}</p>
-                              <p className="text-sm font-normal">Price: ${course.price}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </Tr>)
-                      :
-                      <div className="px-6 text-white mb-4">Not Purchased any course</div>
-                    }
-                  </div>
-
-                ))}
+          {loading ? (
+            <Tr><Td colSpan={3} className="text-center py-4">Đang tải...</Td></Tr>
+          ) : allInstructorDetails.length === 0 ? (
+            <Tr><Td colSpan={3} className="text-center py-4">Không có giảng viên nào.</Td></Tr>
+          ) : (
+            allInstructorDetails.map(instructor => (
+              <Tr key={instructor._id}>
+                <Td className="border px-4 py-2">{instructor.firstName} {instructor.lastName}</Td>
+                <Td className="border px-4 py-2">{instructor.email}</Td>
+                <Td className="border px-4 py-2">
+                  {(instructor.courses || []).length === 0 ? (
+                    <span className="text-gray-400">Chưa tạo khóa học nào</span>
+                  ) : (
+                    <ul className="list-disc ml-4">
+                      {instructor.courses.map(course => (
+                        <li key={course._id}>
+                          <a
+                            href={`/dashboard/view-course/${course._id}`}
+                            className="text-blue-600 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {course.courseName}
+                          </a>
+                          {course.createdAt && (
+                            <span className="ml-2 text-xs text-gray-500">(Tạo: {new Date(course.createdAt).toLocaleDateString()})</span>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </Td>
+              </Tr>
+            ))
+          )}
         </Tbody>
       </Table>
     </div>

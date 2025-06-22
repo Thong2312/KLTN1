@@ -100,7 +100,19 @@ const AllStudents = () => {
                     ) : (
                       <ul className="list-disc ml-4">
                         {student.courses.map(course => (
-                          <li key={course._id}>{course.courseName}</li>
+                          <li key={course._id}>
+                            <a
+                              href={`/dashboard/view-course/${course._id}`}
+                              className="text-blue-600 hover:underline"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {course.courseName}
+                            </a>
+                            {course.createdAt && (
+                              <span className="ml-2 text-xs text-gray-500">(Tham gia: {new Date(course.createdAt).toLocaleDateString()})</span>
+                            )}
+                          </li>
                         ))}
                       </ul>
                     )}
